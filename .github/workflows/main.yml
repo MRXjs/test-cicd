@@ -1,0 +1,35 @@
+name: Deploy to Webuzo
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Next.js app
+        run: npm run build
+
+      # Upload ONLY the .next folder (the build output)
+      - name: Deploy via SSH
+        uses: easingthemes/ssh-deploy@v4
+        with:
+          ssh_private_key: ${{ secrets.SSH_KEY}}
+          remote_host: ${{ secrets.HOST }}
+          remote_user: ${{ secrets.USER }}
+          remote_port: ${{ secrets.PORT }}
+          local_path: '.next'
+          remote_path: '/home/brmidia/public_html/test.reviewsfactory.app/.next'
